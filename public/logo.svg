@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" fill="none"/>
+  <!-- 深蓝色锁图标 -->
+  <!-- 锁身 -->
+  <rect x="18" y="26" width="28" height="24" rx="4" fill="none" stroke="#1a2a70" stroke-width="3"/>
+  <!-- 锁环 -->
+  <path d="M24 20 C24 14 40 14 40 20 V26" fill="none" stroke="#1a2a70" stroke-width="3" stroke-linecap="round"/>
+  <!-- 钥匙孔 -->
+  <circle cx="32" cy="34" r="3" fill="#1a2a70"/>
+  <path d="M32 37 V40" stroke="#1a2a70" stroke-width="2" stroke-linecap="round"/>
+</svg>

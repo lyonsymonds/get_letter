@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>开信</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html, body { height: 100%; }
+    body {
+      background: radial-gradient(circle at 15% 25%, #151a2b, #0a0e1a 70%);
+      font-family: 'PingFang SC', 'HarmonyOS Sans', system-ui, sans-serif;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+    }
+    .accent { color: #ff4d8a; }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff4d8a, #ff6ec4);
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-secondary {
+      background: linear-gradient(135deg, #4cc9f0, #43e97b);
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-secondary:hover { opacity: 0.92; transform: translateY(-1px); }
+    .input-field {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background-color: rgba(55, 65, 81, 0.5);
+      border-radius: 0.375rem;
+      outline: none;
+      border: 1px solid transparent;
+    }
+    .input-field:focus {
+      border-color: #ff4d8a;
+      box-shadow: 0 0 0 1px #ff4d8a;
+    }
+    .textarea-field {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background-color: rgba(55, 65, 81, 0.5);
+      border-radius: 0.375rem;
+      outline: none;
+      border: 1px solid transparent;
+      resize: none;
+    }
+    .textarea-field:focus {
+      border-color: #ff4d8a;
+      box-shadow: 0 0 0 1px #ff4d8a;
+    }
+  </style>
+</head>
+<body class="text-gray-100 flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 card border-b">
+    <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-3">
+        <img src="/logo.png" alt="logo" class="h-10 w-10" />
+        <span class="text-xl font-bold">开信</span>
+      </div>
+      <nav class="flex gap-4 text-sm">
+        <a href="#extract" class="hover:accent transition">输码提取</a>
+        <a href="#once" class="hover:accent transition">一次性创建</a>
+        <a href="#repeat" class="hover:accent transition">重复性创建</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 w-full">
+    <div class="max-w-3xl mx-auto px-4 py-6 space-y-6">
+
+      <!-- 1. 输码提取消息 -->
+      <section id="extract" class="card rounded-xl p-5">
+        <h2 class="text-lg font-semibold mb-3">🔍 输码提取消息</h2>
+        <p class="text-sm text-gray-400 mb-3">输入收到的 8 位验证码 (6 位数字 + 2 位字母)</p>
+
+        <div class="flex gap-2">
+          <input id="extract-code" type="text" placeholder="例如 482913AF"
+                 class="flex-1 input-field uppercase text-center text-lg tracking-widest"
+                 maxlength="8" />
+          <button id="extract-btn"
+                  class="btn-primary text-white px-5 rounded font-medium">
+            提取
+          </button>
+        </div>
+
+        <!-- 提取结果 -->
+        <div id="extract-result" class="hidden mt-4 card rounded p-4">
+          <div id="result-inner"></div>
+        </div>
+      </section>
+
+      <!-- 2. 一次性消息创建 -->
+      <section id="once" class="card rounded-xl p-5">
+        <h2 class="text-lg font-semibold mb-2">📝 一次性消息创建</h2>
+        <p class="text-sm text-gray-400 mb-3">该消息仅能被提取 1 次，提取后自动删除。</p>
+
+        <textarea id="once-text" placeholder="输入留言文字（最多500字）"
+                  class="textarea-field h-24"></textarea>
+
+        <div class="my-3">
+          <label class="block text-sm mb-1">上传二维码图片 (≤1MB)</label>
+          <input id="once-file" type="file" accept="image/*" class="block text-sm w-full" />
+          <div id="once-preview" class="mt-2 hidden">
+            <img id="once-img" class="max-w-[120px] max-h-[120px] border border-gray-600 rounded" />
+          </div>
+        </div>
+
+        <div class="my-3">
+          <span class="block text-sm mb-1">过期时间</span>
+          <div class="flex flex-wrap gap-2 text-sm">
+            <label><input type="radio" name="once-exp" value="3d" class="accent-pink-500"> 3天</label>
+            <label><input type="radio" name="once-exp" value="7d" class="accent-pink-500" checked> 7天</label>
+            <label><input type="radio" name="once-exp" value="30d" class="accent-pink-500"> 30天</label>
+            <label><input type="radio" name="once-exp" value="60d" class="accent-pink-500"> 60天</label>
+            <label><input type="radio" name="once-exp" value="permanent" class="accent-pink-500"> 永久</label>
+          </div>
+        </div>
+
+        <button id="once-create"
+                class="btn-primary w-full text-white py-2 rounded font-medium">
+          生成一次性识别码
+        </button>
+
+        <div id="once-result" class="hidden mt-4 card rounded p-4">
+          <div id="once-result-inner"></div>
+        </div>
+      </section>
+
+      <!-- 3. 重复性信息创建 -->
+      <section id="repeat" class="card rounded-xl p-5">
+        <h2 class="text-lg font-semibold mb-2">🔁 重复性信息创建</h2>
+        <p class="text-sm text-gray-400 mb-3">设定最大提取次数，用完后自动失效。</p>
+
+        <textarea id="repeat-text" placeholder="输入留言文字（最多500字）"
+                  class="textarea-field h-24"></textarea>
+
+        <div class="my-3">
+          <label class="block text-sm mb-1">上传二维码图片 (≤1MB)</label>
+          <input id="repeat-file" type="file" accept="image/*" class="block text-sm w-full" />
+          <div id="repeat-preview" class="mt-2 hidden">
+            <img id="repeat-img" class="max-w-[120px] max-h-[120px] border border-gray-600 rounded" />
+          </div>
+        </div>
+
+        <div class="my-3">
+          <label class="block text-sm mb-1">最大提取次数</label>
+          <input id="repeat-max" type="number" min="1" value="10"
+                 class="w-20 px-2 py-1 bg-gray-800/50 rounded focus:outline-none focus:ring-1 focus:ring-pink-500" />
+        </div>
+
+        <div class="my-3">
+          <span class="block text-sm mb-1">过期时间</span>
+          <div class="flex flex-wrap gap-2 text-sm">
+            <label><input type="radio" name="repeat-exp" value="3d" class="accent-pink-500"> 3天</label>
+            <label><input type="radio" name="repeat-exp" value="7d" class="accent-pink-500" checked> 7天</label>
+            <label><input type="radio" name="repeat-exp" value="30d" class="accent-pink-500"> 30天</label>
+            <label><input type="radio" name="repeat-exp" value="60d" class="accent-pink-500"> 60天</label>
+            <label><input type="radio" name="repeat-exp" value="permanent" class="accent-pink-500"> 永久</label>
+          </div>
+        </div>
+
+        <button id="repeat-create"
+                class="btn-primary w-full text-white py-2 rounded font-medium">
+          生成重复性识别码
+        </button>
+
+        <div id="repeat-result" class="hidden mt-4 card rounded p-4">
+          <div id="repeat-result-inner"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="text-center text-xs text-gray-500 py-6">
+    <p>开信 · 一码开信，消息即达</p>
+  </footer>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    // ---------- 复制到剪贴板（带视觉反馈） ----------
+    function copyToClip(text, btn) {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        // 降级方案
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showCopyFeedback(btn);
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showCopyFeedback(btn);
+      }).catch(() => {
+        alert('复制失败，请手动复制');
+      });
+    }
+
+    function showCopyFeedback(btn) {
+      if (!btn) return;
+      const originalText = btn.textContent;
+      btn.textContent = '已复制';
+      btn.style.color = '#ff4d8a';
+      btn.style.background = 'linear-gradient(135deg, #ff6ec4, #ff4d8a)';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.color = '';
+        btn.style.background = '';
+      }, 1800);
+    }
+
+    // ---------- 共用：显示结果卡 ----------
+    function showCodeResult(boxId, innerId, { code, expiresAt, type, total, isOnce }) {
+      const shareUrl = window.location.origin + '/e/' + code;
+      const html = `
+        <div class="flex items-center justify-between mb-2">
+          <code class="text-2xl font-bold tracking-widest accent">${code}</code>
+          <button onclick="copyToClip('${code}', this)"
+                  class="text-xs px-2 py-1 bg-gray-700 rounded text-sm">复制码</button>
+        </div>
+        <div class="break-all text-sm text-gray-300 mb-2">${shareUrl}
+          <button onclick="copyToClip('${shareUrl}', this)"
+                  class="text-xs px-2 py-1 bg-gray-700 rounded text-sm">复制链接</button>
+        </div>
+        <div class="mt-2 text-xs text-gray-400 border-t border-gray-700 pt-2">
+          类型: ${isOnce ? '一次性 (提取1次后删除)' : '重复性 (最多' + (total || 1) + '次)'} · 过期: ${expiresAt}
+        </div>
+      `;
+      const box = $(boxId);
+      const inner = $(innerId);
+      if (box) box.classList.remove('hidden');
+      if (inner) inner.innerHTML = html;
+    }
+
+    // ---------- 图片处理 ----------
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    // ---------- 提取消息 ----------
+    const extractBtn = $('extract-btn');
+    const extractCode = $('extract-code');
+    if (extractBtn && extractCode) {
+      extractBtn.onclick = async () => {
+        let code = extractCode.value.toUpperCase().replace(/\s+/g, '');
+        if (!code) return alert('请输入验证码');
+        extractBtn.disabled = true;
+        extractBtn.textContent = '提取中…';
+
+        try {
+          const res = await fetch('/api/e/' + encodeURIComponent(code));
+          const data = await res.json();
+          if (!data.ok) {
+            const resultInner = $('result-inner');
+            if (resultInner) resultInner.innerHTML = `<p class="text-red-400">${data.msg}</p>`;
+            const extractResult = $('extract-result');
+            if (extractResult) extractResult.classList.remove('hidden');
+            return;
+          }
+          let html = '';
+          html += '<div class="mb-2"><strong class="text-xs text-gray-400">留言内容：</strong></div>';
+          if (data.text) {
+            html += `<pre class="whitespace-pre-wrap text-base leading-relaxed mb-2">${escapeHtml(data.text)}</pre>`;
+          }
+          if (data.image) {
+            html += `<img src="${data.image}" class="max-w-[120px] max-h-[120px] rounded mb-2" alt="二维码" />`;
+          }
+          if (!data.text && !data.image) {
+            html += '<p class="text-gray-500">（无内容）</p>';
+          }
+          html += `<div class="mt-3 text-xs text-gray-400 border-t border-gray-700 pt-2">
+                   ${data.deleted ? '⚠️ 该消息已耗尽，自动删除' : '剩余可提取次数: ' + data.remaining}
+                 </div>`;
+          const resultInner = $('result-inner');
+          if (resultInner) resultInner.innerHTML = html;
+          const extractResult = $('extract-result');
+          if (extractResult) extractResult.classList.remove('hidden');
+        } catch (e) {
+          console.error('extract error:', e);
+          const resultInner = $('result-inner');
+          if (resultInner) resultInner.innerHTML = '<p class="text-red-400">网络错误，请稍后重试</p>';
+          const extractResult = $('extract-result');
+          if (extractResult) extractResult.classList.remove('hidden');
+        } finally {
+          if (extractBtn) {
+            extractBtn.disabled = false;
+            extractBtn.textContent = '提取';
+          }
+        }
+      };
+
+      extractCode.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && extractBtn) extractBtn.click();
+      });
+    }
+
+    // ---------- 创建一次性消息 ----------
+    const onceFile = $('once-file');
+    if (onceFile) {
+      onceFile.onchange = async (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        if (f.size > 1024 * 1024) return alert('图片≤1MB');
+        try {
+          const b64 = await readFileAsBase64(f);
+          const onceImg = $('once-img');
+          const oncePreview = $('once-preview');
+          if (onceImg) onceImg.src = b64;
+          if (oncePreview) oncePreview.classList.remove('hidden');
+          onceFile._b64 = b64;
+        } catch (e) {
+          alert('图片读取失败');
+        }
+      };
+    }
+
+    const onceCreateBtn = $('once-create');
+    if (onceCreateBtn) {
+      onceCreateBtn.onclick = async () => {
+        try {
+          const expRadio = document.querySelector('input[name="once-exp"]:checked');
+          const exp = expRadio ? expRadio.value : '7d';
+          const onceText = $('once-text');
+          const text = onceText ? onceText.value.trim() : '';
+          const image = onceFile && onceFile._b64 ? onceFile._b64 : null;
+          if (!text && !image) return alert('请输入文字或上传图片');
+
+          const res = await fetch('/api/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, image, type: 'once', maxUses: 1 })
+          });
+          const data = await res.json();
+          if (!data.ok) return alert(data.msg);
+          showCodeResult('once-result', 'once-result-inner', {
+            code: data.code, expiresAt: data.expiresAt, type: data.type, total: 1, isOnce: true
+          });
+          // 重置表单
+          if (onceText) onceText.value = '';
+          const onceImg = $('once-img');
+          if (onceImg) onceImg.src = '';
+          const oncePreview = $('once-preview');
+          if (oncePreview) oncePreview.classList.add('hidden');
+          if (onceFile) { onceFile.value = ''; onceFile._b64 = null; }
+        } catch (e) {
+          console.error('once-create error:', e);
+          alert('创建失败，请稍后重试');
+        }
+      };
+    }
+
+    // ---------- 创建重复性消息 ----------
+    const repeatFile = $('repeat-file');
+    if (repeatFile) {
+      repeatFile.onchange = async (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        if (f.size > 1024 * 1024) return alert('图片≤1MB');
+        try {
+          const b64 = await readFileAsBase64(f);
+          const repeatImg = $('repeat-img');
+          const repeatPreview = $('repeat-preview');
+          if (repeatImg) repeatImg.src = b64;
+          if (repeatPreview) repeatPreview.classList.remove('hidden');
+          repeatFile._b64 = b64;
+        } catch (e) {
+          alert('图片读取失败');
+        }
+      };
+    }
+
+    const repeatCreateBtn = $('repeat-create');
+    if (repeatCreateBtn) {
+      repeatCreateBtn.onclick = async () => {
+        try {
+          const expRadio = document.querySelector('input[name="repeat-exp"]:checked');
+          const exp = expRadio ? expRadio.value : '7d';
+          const repeatMax = $('repeat-max');
+          const max = parseInt(repeatMax ? repeatMax.value : '10') || 10;
+          if (max < 1) return alert('请输入大于0的次数');
+          const repeatText = $('repeat-text');
+          const text = repeatText ? repeatText.value.trim() : '';
+          const image = repeatFile && repeatFile._b64 ? repeatFile._b64 : null;
+          if (!text && !image) return alert('请输入文字或上传图片');
+
+          const res = await fetch('/api/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, image, type: 'repeat', maxUses: max })
+          });
+          const data = await res.json();
+          if (!data.ok) return alert(data.msg);
+          showCodeResult('repeat-result', 'repeat-result-inner', {
+            code: data.code, expiresAt: data.expiresAt, type: data.type, total: max, isOnce: false
+          });
+          if (repeatText) repeatText.value = '';
+          const repeatImg = $('repeat-img');
+          if (repeatImg) repeatImg.src = '';
+          const repeatPreview = $('repeat-preview');
+          if (repeatPreview) repeatPreview.classList.add('hidden');
+          if (repeatFile) { repeatFile.value = ''; repeatFile._b64 = null; }
+        } catch (e) {
+          console.error('repeat-create error:', e);
+          alert('创建失败，请稍后重试');
+        }
+      };
+    }
+
+    // 简单 HTML 转义
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"')
+        .replace(/'/g, '&#039;');
+    }
+
+    // 加载时滚动到 #extract 若存在锚
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash;
+      if (hash) {
+        setTimeout(() => {
+          const el = document.querySelector(hash);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    });
+  </script>
+</body>
+</html>

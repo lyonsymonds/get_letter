@@ -1,0 +1,17 @@
+{
+  "name": "ahao-demo",
+  "version": "0.1.0",
+  "description": "暗号 - 一次性/重复性留言提取系统 (demo)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
